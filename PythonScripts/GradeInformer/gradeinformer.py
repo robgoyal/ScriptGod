@@ -1,3 +1,9 @@
+#!user/bin/env/ python
+
+## Python script to check mcmaster grades for current semester
+## Courses are taken from courses.txt file
+## Script requires macid and password from command line, twilio sid, auth token and phone numbers
+
 import requests
 import getpass
 from twilio.rest import Client

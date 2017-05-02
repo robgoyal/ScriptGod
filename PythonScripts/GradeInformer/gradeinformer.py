@@ -1,8 +1,14 @@
 #!user/bin/env/ python
 
-## Python script to check mcmaster grades for current semester
-## Courses are taken from courses.txt file
-## Script requires macid and password from command line, twilio sid, auth token and phone numbers
+# Purpose: Script to automatically check for recently updated grades from 
+#          McMaster Website
+# Author: Robin Goyal
+# Last Updated: May 2, 2017
+# Usage: python gradeinformer.py
+
+# Notes: List of courses should be stored in courses.txt (same directory as
+#        script). Script requires macID, password as input and twilio account
+#        info and phones numbers must be added to script manually
 
 import requests
 import getpass
@@ -13,11 +19,10 @@ from bs4 import BeautifulSoup
 username = raw_input("Username: ")
 password = getpass.getpass("Password: ")
 
-
 # Twilio account id and authorization setup
-account_sid = {"ACCOUNT_SID"}
-auth_token = {"AUTH_TOKEN"}
-client = Client(account_sid, auth_token)
+accountSid = {"ACCOUNT_SID"}
+authToken = {"AUTH_TOKEN"}
+client = Client(accountSid, authToken)
 
 # Store payload data
 payload = {
@@ -29,20 +34,21 @@ payload = {
 f = open("courses.txt", 'r')
 courseList = {}
 
+# Store courses in courseList
 for line in f:
-    courserow = line.split(': ')
-    courseList[courserow[0]] = courserow[1]
+    courseRow = line.split(': ')
+    courseList[courseRow[0]] = courseRow[1]
 
 f.close()
 
-# Variable to check if any courses should be deleted from courseList
+# List storing any courses for which grades were found
 deleteCourses = []
 
 # Initial Message
 msg = "You just received marks for: \n"
 
 # Flag to check if course grade has changed
-sendmsgflag = False
+msgFlag = False
 
 # Request session to receive course history page data
 with requests.Session() as s:
@@ -65,10 +71,11 @@ for course in courseList.iterkeys():
     courseGrade = soup.find(id="CRSE_GRADE" + str(courseSoupNumber)).text.replace(u'\xa0', ' ')
     courseGrade = courseGrade.encode('utf-8')
 
+    # Append course info to message if grade was found
     if ' ' in courseGrade:
         continue
     else:
-        sendmsgflag = True
+        msgFlag = True
         courseList[course] = courseGrade
         msg += "You got a mark of %s in %s.\n" % (courseGrade, course)
         deleteCourses.append(course)
@@ -83,8 +90,8 @@ for course in courseList.iterkeys():
     f.write("%s: %s" % (course, courseList[course]))
 f.close()
 
-# Only send message if flag is true
-if sendmsgflag:
+# Only send message if flag is true (course was found)
+if msgFlag:
     message = client.messages.create( 
             body=msg,
             to="",

@@ -6,7 +6,7 @@
 import argparse
 
 from datetime import date
-from helpers import python_writer, c_writer
+from .helpers import python_writer, c_writer
 
 
 SUPPORTED_EXTENSIONS = {"py": python_writer, "c": c_writer}
@@ -48,7 +48,10 @@ class CreateFile(object):
         with open(self.filename, "w") as f:
             f.write(content)
 
-if __name__ == "__main__":
+
+def main():
+
+    # Create argument parser
     ap = argparse.ArgumentParser()
     ap.add_argument("filename", help="Name of file to create")
     ap.add_argument("extension", help="Extension of file")
